@@ -151,5 +151,6 @@ def plot_graph(chat):
         G.add_node(chat[i].answer)
         G.add_edge(chat[i].question,chat[i].answer)
     nx.draw(G, with_labels=True)
+    os.makedirs("assets", exist_ok=True)
     plt.savefig("assets/graph.png")
     plt.clf()
