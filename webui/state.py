@@ -3,6 +3,7 @@ import networkx as nx
 import openai
 import reflex as rx
 import matplotlib.pyplot as plt
+from cloudinary.uploader import upload
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -151,6 +152,8 @@ def plot_graph(chat):
         G.add_node(chat[i].answer)
         G.add_edge(chat[i].question,chat[i].answer)
     nx.draw(G, with_labels=True)
-    os.makedirs("assets", exist_ok=True)
-    plt.savefig("assets/graph.png")
+    # upload to cloudinary
+    plt.savefig("graph.png")
     plt.clf()
+    upload("graph.png", public_id="graph", overwrite=True, invalidate=True)
+    os.remove("graph.png")

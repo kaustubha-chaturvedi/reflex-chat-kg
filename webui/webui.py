@@ -22,11 +22,7 @@ def index() -> rx.Component:
         spacing="0",
     )
 
-def kg() -> rx.Component:
-    return rx.image(src="/graph.png", width="auto",height="100vh")
-
 # Add state and page to the app.
 app = rx.App(state=State, style=styles.base_style)
 app.add_page(index)
-app.add_page(kg, "/kg")
 app.compile()

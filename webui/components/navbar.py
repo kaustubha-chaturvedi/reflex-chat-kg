@@ -43,7 +43,7 @@ def navbar():
                     border_radius="10px",
                     py="2",
                     h="auto",
-                    href="/kg",
+                    href="https://res.cloudinary.com/deascb9f9/image/upload/v1696524943/graph.png",
                     is_external=True
                 ),
                 rx.button(
