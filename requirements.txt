@@ -3,3 +3,4 @@ openai
 networkx
 matplotlib
 python-dotenv
+langchain

@@ -1,14 +1,14 @@
 import os
 import networkx as nx
-import openai
 import reflex as rx
 import matplotlib.pyplot as plt
 from cloudinary.uploader import upload
 from dotenv import load_dotenv
-
+from langchain.chains.conversation.memory import ConversationKGMemory
+from langchain.chains import ConversationChain
+from langchain.prompts.prompt import PromptTemplate
+from langchain.chat_models import ChatOpenAI
 load_dotenv()
-openai.api_key = os.environ["OPENAI_API_KEY"]
-openai.api_base = os.getenv("OPENAI_API_BASE","https://api.openai.com/v1")
 
 
 class QA(rx.Base):
@@ -18,9 +18,29 @@ class QA(rx.Base):
     answer: str
 
 
+llm = ChatOpenAI(
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        openai_api_base=os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1/"),
+        max_tokens=50,
+        temperature=0.7,
+    )
+template = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. 
+                If the AI does not know the answer to a question, it truthfully says it does not know. The AI ONLY uses information contained in the "Relevant Information" section and does not hallucinate.
+                Relevant Information:
+                {history}
+                Conversation:
+                Human: {input}
+                AI:"""
+"""The app state."""
+prompt = PromptTemplate(input_variables=["history","input"],template=template)
+conv=ConversationChain(
+        llm=llm,
+        prompt=prompt,
+        memory=ConversationKGMemory(llm=llm),
+        verbose=True,
+    )
+print(conv.memory.kg.get_triples())
 class State(rx.State):
-    """The app state."""
-
     # A dict from the chat name to the list of questions and answers.
     chats: dict[str, list[QA]] = {
         "Intros": [QA(question="What is your name?", answer="reflex")],
@@ -88,71 +108,35 @@ class State(rx.State):
         """
         return list(self.chats.keys())
 
-    async def process_question(self, form_data: dict[str, str]):
-        """Get the response from the API.
-
-        Args:
-            form_data: A dict with the current question.
-        """
+    async def process_question(self,form_data:dict[str,str]):
+        
         # Check if we have already asked the last question or if the question is empty
         self.question = form_data["question"]
-        if (
-            self.chats[self.current_chat][-1].question == self.question
-            or self.question == ""
-        ):
+        if (self.chats[self.current_chat][-1].question == self.question or self.question == ""):
             return
-
+        
         # Set the processing flag to true and yield.
         self.processing = True
         yield
 
-        # Build the messages.
-        messages = [
-            { "role": "system", "content": "You are a friendly chatbot named Reflex."}
-        ]
-
-        for qa in self.chats[self.current_chat][1:]:
-            messages.append({ "role": "user", "content": qa.question})
-            messages.append({ "role": "assistant", "content": qa.answer})
-
-        messages.append({ "role": "user", "content": self.question})
-
         # Start a new session to answer the question.
-        session = openai.ChatCompletion.create(
-            model=os.getenv("OPENAI_MODEL","gpt-3.5-turbo"),
-            messages=messages,
-            max_tokens=50,
-            n=1,
-            stop=None,
-            temperature=0.7,
-            stream=True,  # Enable streaming
-        )
+
         qa = QA(question=self.question, answer="")
         self.chats[self.current_chat].append(qa)
-
-        # Stream the results, yielding after every word.
-        for item in session:
-            if hasattr(item.choices[0].delta, "content"):
-                answer_text = item.choices[0].delta.content
-                self.chats[self.current_chat][-1].answer += answer_text
-                self.chats = self.chats
-                yield
-
+        self.chats[self.current_chat][-1].answer = conv.predict(input=self.question)
+        self.chats = self.chats
+        yield
+        
         # Toggle the processing flag.
         self.processing = False
-        plot_graph(self.chats[self.current_chat])
-
+        plot_graph(conv.memory.kg.get_triples())
 
 def plot_graph(chat):
     G = nx.Graph()
-    G.add_node("reflex")
-    for i in range(1,len(chat)):
-        G.add_node(chat[i].question)
-        G.add_edge("reflex",chat[i].question)
-        G.add_node(chat[i].answer)
-        G.add_edge(chat[i].question,chat[i].answer)
-    nx.draw(G, with_labels=True)
-    # upload to cloudinary
+    # G = nx.DiGraph()
+    for triple in chat:
+        G.add_edge(triple[0],triple[2])
+    nx.draw(G,with_labels=True)
     plt.savefig("graph.png")
     plt.clf()
     upload("graph.png", public_id="graph", overwrite=True, invalidate=True)
