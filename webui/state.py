@@ -131,7 +131,6 @@ class State(rx.State):
         plot_graph(conv.memory.kg.get_triples())
 
 def plot_graph(chat):
-    print(chat)
     G = nx.Graph()
     G.add_node("reflex")
     for i in chat:
@@ -143,4 +142,4 @@ def plot_graph(chat):
     nx.draw(G,with_labels=True)
     net = Network()
     net.from_nx(G)
-    net.show("graph.html",notebook=False)
+    net.save_graph("assets/graph.html")

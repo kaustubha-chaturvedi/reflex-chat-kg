@@ -88,8 +88,8 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "reflex", "label": "reflex", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "name is", "label": "name is", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kaustubha", "label": "Kaustubha", "shape": "dot", "size": 10}]);
-                  edges = new vis.DataSet([{"from": "reflex", "to": "name is", "width": 1}, {"from": "Kaustubha", "to": "name is", "width": 1}]);
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "reflex", "label": "reflex", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "is named", "label": "is named", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "has a", "label": "has a", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "name", "label": "name", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kaustubha", "label": "kaustubha", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Human", "label": "Human", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "reflex", "to": "is named", "width": 1}, {"from": "reflex", "to": "has a", "width": 1}, {"from": "reflex", "to": "name", "width": 1}, {"from": "kaustubha", "to": "is named", "width": 1}, {"from": "Human", "to": "has a", "width": 1}, {"from": "Human", "to": "name", "width": 1}]);
 
                   nodeColors = {};
                   allNodes = nodes.get({ returnType: "Object" });

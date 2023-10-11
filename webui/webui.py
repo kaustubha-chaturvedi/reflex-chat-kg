@@ -21,8 +21,9 @@ def index() -> rx.Component:
         align_items="stretch",
         spacing="0",
     )
-
-# function to display pyvis network as html
+def kg()-> rx.Component:
+    return rx.html("<iframe src='/graph.html' style='width:100vw; height:100vh;' frameborder='0'></iframe>")
 app = rx.App(state=State, style=styles.base_style)
 app.add_page(index)
+app.add_page(kg, "/kg")
 app.compile()

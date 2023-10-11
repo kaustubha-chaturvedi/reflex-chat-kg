@@ -34,6 +34,18 @@ def navbar():
                 ),
             ),
             rx.hstack(
+                 rx.link(
+                    rx.image(src="/graph-icon.svg", width="20px",height="20px",mr="2"),
+                    "KG",
+                    bg=styles.accent_color,
+                    px="4",
+                    display="flex",
+                    border_radius="10px",
+                    py="2",
+                    h="auto",
+                    href="/kg",
+                    is_external=True
+                ),
                 rx.button(
                     "+ New chat",
                     bg=styles.accent_color,
