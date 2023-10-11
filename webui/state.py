@@ -2,8 +2,6 @@ import os
 from pyvis.network import Network
 import networkx as nx
 import reflex as rx
-import matplotlib.pyplot as plt
-from cloudinary.uploader import upload
 from dotenv import load_dotenv
 from langchain.chains.conversation.memory import ConversationKGMemory
 from langchain.chains import ConversationChain
@@ -64,7 +62,7 @@ class State(rx.State):
 
     # Whether the modal is open.
     modal_open: bool = False
-    
+
     def create_chat(self):
         """Create a new chat."""
         # Insert a default question.
@@ -133,10 +131,16 @@ class State(rx.State):
         plot_graph(conv.memory.kg.get_triples())
 
 def plot_graph(chat):
-    G = nx.DiGraph()
-    for triple in chat:
-        G.add_edge(triple[0],triple[2])
+    print(chat)
+    G = nx.Graph()
+    G.add_node("reflex")
+    for i in chat:
+        G.add_node(i[0])
+        G.add_node(i[2])
+    for i in chat:
+        G.add_edge("reflex",i[2])
+        G.add_edge(i[0],i[2])
     nx.draw(G,with_labels=True)
-    net = Network(notebook=False)
+    net = Network()
     net.from_nx(G)
-    net.show("graph.html")
+    net.show("graph.html",notebook=False)
