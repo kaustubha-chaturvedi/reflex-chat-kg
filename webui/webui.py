@@ -22,6 +22,11 @@ def index() -> rx.Component:
         spacing="0",
     )
 
+# function to display pyvis network as html
+def kg()->rx.Component:
+    return rx.html(
+        State.net
+    )
 # Add state and page to the app.
 app = rx.App(state=State, style=styles.base_style)
 app.add_page(index)

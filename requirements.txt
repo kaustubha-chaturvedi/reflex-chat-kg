@@ -4,3 +4,4 @@ networkx
 matplotlib
 python-dotenv
 langchain
+pyvis

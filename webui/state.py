@@ -1,4 +1,5 @@
 import os
+from pyvis.network import Network
 import networkx as nx
 import reflex as rx
 import matplotlib.pyplot as plt
@@ -39,7 +40,7 @@ conv=ConversationChain(
         memory=ConversationKGMemory(llm=llm),
         verbose=True,
     )
-print(conv.memory.kg.get_triples())
+
 class State(rx.State):
     # A dict from the chat name to the list of questions and answers.
     chats: dict[str, list[QA]] = {
@@ -63,7 +64,7 @@ class State(rx.State):
 
     # Whether the modal is open.
     modal_open: bool = False
-
+    
     def create_chat(self):
         """Create a new chat."""
         # Insert a default question.
@@ -132,12 +133,10 @@ class State(rx.State):
         plot_graph(conv.memory.kg.get_triples())
 
 def plot_graph(chat):
-    G = nx.Graph()
-    # G = nx.DiGraph()
+    G = nx.DiGraph()
     for triple in chat:
         G.add_edge(triple[0],triple[2])
     nx.draw(G,with_labels=True)
-    plt.savefig("graph.png")
-    plt.clf()
-    upload("graph.png", public_id="graph", overwrite=True, invalidate=True)
-    os.remove("graph.png")
+    net = Network(notebook=False)
+    net.from_nx(G)
+    net.show("graph.html")
